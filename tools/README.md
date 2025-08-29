@@ -64,4 +64,62 @@ By showing JSON output, this tool can also be integrated into dashboards, report
 💡 **Educational Purpose Only**
 This tool is part of the Ghost Protocol project, which demonstrates **how anonymity leaks occur** — so that better privacy systems can be designed.
 
+
+---
+
+### 2. Metadata Cleaner (`metadata_cleaner.py`)
+
+This tool removes **hidden metadata** from files before sharing.
+Metadata often leaks **who created a file, when, where, and with what device/software** — a critical privacy risk.
+
+📂 Supported file types:
+
+* 🖼️ **Images** – Strips EXIF tags (camera model, GPS location, date).
+* 📑 **PDFs** – Removes embedded author, creation date, and software info.
+* 📝 **DOCX (Word docs)** – Cleans document properties (author, comments, revision history).
+
+---
+
+#### ⚙️ Usage
+
+```bash
+cd tools
+
+# Clean an image
+python metadata_cleaner.py samples/demo.jpg -o cleaned_demo.jpg
+
+# Clean a PDF
+python metadata_cleaner.py samples/demo.pdf -o cleaned_demo.pdf
+
+# Clean a DOCX
+python metadata_cleaner.py samples/demo.docx -o cleaned_demo.docx
 ```
+
+This will output cleaned versions of your files with metadata removed.
+
+---
+
+#### 📝 Example Demo
+
+Here’s the tool in action (recorded as a GIF):
+
+![Metadata Cleaner Demo](./cleaner_demo.gif)
+
+---
+
+#### 🎯 Why This Matters
+
+* 📸 **Photos** – GPS coordinates in a selfie can reveal your home address.
+* 📄 **Business Docs** – Author tags can leak employee names or internal systems.
+* ⚖️ **Legal/Evidence** – Metadata leaks can compromise sensitive investigations.
+
+This script shows **how easy it is to sanitize files** before uploading or sending.
+In corporate or government settings, this prevents **accidental leaks of sensitive data**.
+
+---
+
+💡 **Educational Purpose Only**
+This tool demonstrates how **metadata leaks identity**. It’s included in Ghost Protocol to show practical steps toward reducing digital footprints.
+
+---
+
