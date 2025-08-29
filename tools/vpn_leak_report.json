@@ -1,0 +1,15 @@
+{
+    "public_ip": "5.151.133.77",
+    "dns_leak": [
+        "130.43.187.40",
+        "130.43.187.41"
+    ],
+    "webrtc_leak": {
+        "nat_type": "Restric Port NAT",
+        "external_ip": null,
+        "external_port": null
+    },
+    "ipv6_leak": [
+        "::1"
+    ]
+}
