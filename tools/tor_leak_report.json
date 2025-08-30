@@ -1,0 +1,8 @@
+{
+    "ip_check": {
+        "error": "Missing dependencies for SOCKS support."
+    },
+    "dns_check": {
+        "error": "Missing dependencies for SOCKS support."
+    }
+}
