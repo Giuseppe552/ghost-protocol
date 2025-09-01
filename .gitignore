@@ -16,3 +16,13 @@ ghost-tor-profile-*/
 # OS/editor
 .DS_Store
 *.log
+
+# --- demo/media hygiene ---
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.gif
+!docs/media/*.gif
+docs/media/tmp/
+tools/.tor.pid

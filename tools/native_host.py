@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-import json, sys, subprocess, socket, pathlib
-
+import json
+import sys
+import subprocess
+import socket
+import pathlib
 ROOT   = pathlib.Path(__file__).resolve().parents[1]
 TOOLS  = ROOT / "tools"
 SCRIPT = TOOLS / "tor_leak_test.py"
 REPORT = ROOT / "tor_leak_report.json"
+
+
+
 
 def _read():
     raw = sys.stdin.buffer.read(4)
@@ -13,19 +19,31 @@ def _read():
     data = sys.stdin.buffer.read(n)
     return json.loads(data.decode("utf-8"))
 
+
+
+
 def _send(obj):
     b = json.dumps(obj).encode("utf-8")
     sys.stdout.buffer.write(len(b).to_bytes(4, "little"))
-    sys.stdout.buffer.write(b); sys.stdout.flush()
+    sys.stdout.buffer.write(b)
+sys.stdout.flush()
+
+
+
 
 def tor_running() -> bool:
-    s = socket.socket(); s.settimeout(0.5)
+    s = socket.socket()
+s.settimeout(0.5)
     try:
-        s.connect(("127.0.0.1", 9050)); return True
+        s.connect(("127.0.0.1", 9050))
+return True
     except Exception:
         return False
     finally:
         s.close()
+
+
+
 
 def run_leak_test():
     try:
@@ -36,6 +54,9 @@ def run_leak_test():
     except Exception as e:
         return {"error": str(e)}
 
+
+
+
 def main():
     while True:
         try:
@@ -43,7 +64,8 @@ def main():
         except SystemExit:
             return
         except Exception as e:
-            _send({"ok": False, "error": f"read:{e}"}); continue
+            _send({"ok": False, "error": f"read:{e}"})
+continue
 
         if req.get("cmd", "status") == "status":
             _send({

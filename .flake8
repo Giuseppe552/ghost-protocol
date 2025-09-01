@@ -1,4 +1,4 @@
 [flake8]
-max-line-length = 120
-extend-ignore = E203, W503
-exclude = .git,__pycache__,docs,tools/samples,*.gif,*.jpg,*.png
+per-file-ignores =
+    tools/native_host.py: E231,E302,E305,E401,E702
+    tools/run_workspace.py: E231,E302,E305,E401,E702

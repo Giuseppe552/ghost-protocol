@@ -4,11 +4,13 @@ from pathlib import Path
 PROFILE_NAME = "ghostshield"
 PROFILE_DIR = Path.home() / ".mozilla" / "firefox" / PROFILE_NAME
 
+
 def resolve(cmd_env, fallback):
     p = os.environ.get(cmd_env) or shutil.which(fallback)
     if not p:
         raise FileNotFoundError(f"{fallback} not found. Install it or set {cmd_env}.")
     return p
+
 
 def confirm(msg):
     try:
@@ -16,6 +18,7 @@ def confirm(msg):
     except EOFError:
         ans = ""
     return ans in ("y", "yes")
+
 
 def ensure_profile(firefox: str) -> Path:
     d = PROFILE_DIR
@@ -28,6 +31,7 @@ def ensure_profile(firefox: str) -> Path:
                 break
             time.sleep(0.25)
     return d
+
 
 def write_userjs(d: Path) -> None:
     prefs = """
@@ -44,8 +48,10 @@ user_pref("dom.security.https_only_mode", true);
 """
     (d / "user.js").write_text(prefs, encoding="utf-8")
 
+
 def tor_already_running():
     import socket
+
     s = socket.socket()
     s.settimeout(0.5)
     try:
@@ -55,6 +61,7 @@ def tor_already_running():
         return False
     finally:
         s.close()
+
 
 def main():
     firefox = resolve("FIREFOX_PATH", "firefox")
@@ -82,9 +89,10 @@ def main():
         firefox,
         "--new-instance",
         "--no-remote",
-        "-profile", str(prof),
+        "-profile",
+        str(prof),
         "-private-window",
-        "https://check.torproject.org/"
+        "https://check.torproject.org/",
     ]
     subprocess.Popen(args)
 
@@ -92,6 +100,7 @@ def main():
     print("[i] HTTPS-Only + anti-WebRTC written to user.js.")
     print("[i] No existing Firefox windows were closed.")
     print("[i] To stop Tor later, close it from its own window or `pkill tor` (manually).")
+
 
 if __name__ == "__main__":
     main()
