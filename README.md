@@ -1,6 +1,10 @@
 <p align="center">
-  <video src="docs/demo/demo.mp4" width="960" controls autoplay muted loop></video>
+  <a href="docs/demo/demo.mp4">
+    <img src="docs/media/demo.gif" alt="20-second demo (click for full video)" width="100%">
+  </a>
 </p>
+
+> **What you’re seeing (20s):** paste the one-liner, the hardened Tor-Firefox launches, the Ghost Shield sidecar opens, we visit Tor Check and an HTTP-only test — the sidecar shows Tor OK, exit is a Tor IP, HTTPS blocks HTTP, DNS differs (no local leak).
 
 
 ### ▶️ One-liner demo (Linux, Firefox)
