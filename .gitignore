@@ -9,9 +9,10 @@ vpn_leak_report.json
 ghost_report.json
 ghost-tor-profile-*/
 
+# Tor/Firefox profiles (any platform)
+**/Firefox/Profiles/tor-secure/**
+**/tor-secure/**
+
 # OS/editor
 .DS_Store
 *.log
-
-# accidental Windows path that slipped into history
-C:\Users\giuse\AppData\Roaming\Mozilla\Firefox\Profiles\tor-secure/
