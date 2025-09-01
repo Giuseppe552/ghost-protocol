@@ -1,64 +1,5 @@
 # 🕵️ Ghost Protocol
 
-
-▶️ One-paste Live Demo (Linux)
-
-```
-# Clone (or update) + run the demo (Tor-hardened Firefox + Sidecar UI)
-# Works on Ubuntu/Pop!_OS; asks for sudo only if Tk GUI is missing.
-set -e
-
-# 1) Get the repo
-cd ~
-if [ ! -d ghost-protocol ]; then
-  git clone git@github.com:Giuseppe552/ghost-protocol.git
-fi
-cd ghost-protocol
-git pull --rebase || true
-
-# 2) Python deps (user install)
-python3 -m pip install --user -r requirements.txt >/dev/null 2>&1 || true
-
-# 3) Ensure Tkinter GUI (for the Sidecar window)
-python3 - <<'PY'
-try:
-    import tkinter  # noqa
-except Exception:
-    import subprocess, sys
-    subprocess.run(["sudo","apt-get","update","-y"])
-    subprocess.run(["sudo","apt-get","install","-y","python3-tk"])
-PY
-
-# 4) Hardened Tor profile tweak (disable DoH inside profile to avoid DNS mismatches)
-mkdir -p ~/.mozilla/firefox/ghostshield
-grep -q 'network.trr.mode' ~/.mozilla/firefox/ghostshield/user.js 2>/dev/null \
-  || printf '\nuser_pref("network.trr.mode", 5);\n' >> ~/.mozilla/firefox/ghostshield/user.js
-
-# 5) Launch Tor-hardened Firefox if not already running
-pgrep -af 'firefox.*ghostshield' >/dev/null || python3 tools/ghost_browser_secure.py &
-
-# 6) Launch the Sidecar (shows Tor/DNS/WebRTC status + copy-to-clipboard test links)
-sleep 2
-python3 tools/ghost_sidecar.py
-```
-
-(Optional) First-time system prep
-```
-# If you need Tor or a screen recorder for demos:
-sudo apt-get update
-sudo apt-get install -y tor peek gifsicle
-```
-(Optional) Stop/Cleanup
-```
-# Close the sidecar and Tor-hardened Firefox:
-pkill -f 'tools/ghost_sidecar.py' || true
-pkill -f 'firefox.*ghostshield'   || true
-# Stop Tor if you launched a foreground tor (safe if the service is used—it will just no-op):
-pkill -x tor || true
-```
-
----
-
 *A research + demo lab for digital anonymity (Linux-first, 2025).*
 
 > “If you can’t explain it to a 5-year-old, you don’t understand it well enough.”
@@ -104,26 +45,6 @@ ghost-protocol/
 
 ---
 
-## 🚀 Quickstart
-
-**Option A — one-liners**
-```bash
-git clone https://github.com/Giuseppe552/ghost-protocol.git
-cd ghost-protocol
-pip install -r requirements.txt
-python3 ghost_protocol.py
-````
-
-**Option B — with Makefile**
-
-```bash
-git clone https://github.com/Giuseppe552/ghost-protocol.git
-cd ghost-protocol
-make setup
-make run
-```
-
----
 
 ## 🧪 Usage
 
@@ -231,8 +152,8 @@ Issues and PRs welcome. Keep PRs small and Linux-first. Run `make fmt && make li
 
 ### ▶️ One-liner demo (Linux, Firefox)
 
-```bash
-bash -c 'set -e; cd ~; REPO=ghost-protocol; [ -d "$REPO" ] || git clone https://github.com/Giuseppe552/ghost-protocol.git "$REPO"; cd "$REPO"; git pull --rebase || true; python3 -m pip install --user -r requirements.txt >/dev/null 2>&1 || true; python3 -c "import tkinter" 2>/dev/null || (sudo apt-get update -y && sudo apt-get install -y python3-tk); mkdir -p ~/.mozilla/firefox/ghostshield; grep -q "network.trr.mode" ~/.mozilla/firefox/ghostshield/user.js 2>/dev/null || printf "
-user_pref(\"network.trr.mode\", 5);\n" >> ~/.mozilla/firefox/ghostshield/user.js; GP_ASSUME_YES=1 python3 tools/ghost_browser_secure.py >/dev/null 2>&1 & sleep 2; python3 tools/ghost_sidecar.py'
+```
+bash -c 'set -e; cd ~; REPO=ghost-protocol; [ -d "$REPO" ] || git clone https://github.com/Giuseppe552/ghost-protocol.git "$REPO"; cd "$REPO"; git pull --rebase || true; python3 -m pip install --user -r requirements.txt >/dev/null 2>&1 || true; python3 -c "import tkinter" 2>/dev/null || (sudo apt-get update -y && sudo apt-get install -y python3-tk); mkdir -p ~/.mozilla/firefox/ghostshield; printf "\nuser_pref(\"network.trr.mode\", 5);\n" >> ~/.mozilla/firefox/ghostshield/user.js; GP_ASSUME_YES=1 python3 tools/ghost_browser_secure.py >/dev/null 2>&1 & sleep 3; python3 tools/ghost_sidecar.py'
+
 ```
 
