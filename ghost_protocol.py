@@ -1,6 +1,6 @@
 from pathlib import Path
-import runpy, sys
-
+import runpy
+import sys
 root = Path(__file__).resolve().parent
 target = root / "tools" / "ghost_protocol.py"
 if not target.exists():

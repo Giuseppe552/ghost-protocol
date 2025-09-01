@@ -1,6 +1,9 @@
-import json, socket, requests
+import json
+import socket
+import requests
 TOR = "socks5h://127.0.0.1:9050"
 PROX = {"http": TOR, "https": TOR}
+
 
 def check_ip():
     try:
@@ -8,6 +11,7 @@ def check_ip():
         return r.json()
     except Exception as e:
         return {"error": str(e)}
+
 
 def dns_leak_test():
     try:
@@ -18,11 +22,13 @@ def dns_leak_test():
     except Exception as e:
         return {"error": str(e)}
 
+
 def main():
     report = {"ip_check": check_ip(), "dns_check": dns_leak_test()}
     with open("tor_leak_report.json", "w") as f:
         json.dump(report, f, indent=2)
     print("[+] Leak test complete -> tor_leak_report.json")
+
 
 if __name__ == "__main__":
     main()
