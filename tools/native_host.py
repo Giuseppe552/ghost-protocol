@@ -1,24 +1,33 @@
 #!/usr/bin/env python3
-import sys, json, subprocess, os, signal, pathlib, time
+import json
+import os
+import pathlib
+import signal
+import subprocess
+import sys
+import time
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 TOR_LEAK = TOOLS / "tor_leak_test.py"
 PIDFILE = TOOLS / ".tor.pid"
 
+
 def _read_msg():
     raw_len = sys.stdin.buffer.read(4)
-    if len(raw_len) == 0:
+    if not raw_len:
         sys.exit(0)
     msg_len = int.from_bytes(raw_len, "little")
     data = sys.stdin.buffer.read(msg_len)
     return json.loads(data.decode("utf-8"))
+
 
 def _send_msg(obj):
     enc = json.dumps(obj).encode("utf-8")
     sys.stdout.buffer.write(len(enc).to_bytes(4, "little"))
     sys.stdout.buffer.write(enc)
     sys.stdout.flush()
+
 
 def _tor_running():
     try:
@@ -27,6 +36,7 @@ def _tor_running():
         return True, pid
     except Exception:
         return False, None
+
 
 def _status():
     try:
@@ -37,6 +47,7 @@ def _status():
         report = {"error": f"tor_leak_test failed: {e}"}
     ok, pid = _tor_running()
     return {"tor_process": {"running": ok, "pid": pid}, "report": report, "host": "native-python"}
+
 
 def main():
     while True:
@@ -59,6 +70,7 @@ def main():
             _send_msg({"ok": True})
         else:
             _send_msg({"error": f"unknown cmd: {cmd}"})
+
 
 if __name__ == "__main__":
     main()
