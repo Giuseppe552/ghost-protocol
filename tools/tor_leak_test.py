@@ -1,34 +1,31 @@
-import requests, socket, json
+cat > tools/tor_leak_test.py << 'EOF'
+import json, socket, requests
 
-TOR_PROXY = "socks5h://127.0.0.1:9050"
+TOR = "socks5h://127.0.0.1:9050"
+PROX = {"http": TOR, "https": TOR}
 
-def check_ip(proxy=None):
+def check_ip():
     try:
-        r = requests.get("https://check.torproject.org/api/ip", proxies=proxy, timeout=10)
+        r = requests.get("https://check.torproject.org/api/ip", proxies=PROX, timeout=10)
         return r.json()
     except Exception as e:
         return {"error": str(e)}
 
 def dns_leak_test():
     try:
-        # Try resolving google.com without proxy (local resolver)
-        ip_local = socket.gethostbyname("google.com")
-        # Resolve through Tor proxy
-        proxies = {"http": TOR_PROXY, "https": TOR_PROXY}
-        ip_tor = requests.get("https://dns.google/resolve?name=google.com", proxies=proxies).json()
-        return {"dns_local": ip_local, "dns_tor": ip_tor.get("Answer", [{}])[0].get("data")}
+        local = socket.gethostbyname("example.com")
+        r = requests.get("https://dns.google/resolve?name=example.com", proxies=PROX, timeout=10)
+        tor_ans = r.json().get("Answer", [{}])[0].get("data")
+        return {"dns_local": local, "dns_via_tor": tor_ans}
     except Exception as e:
         return {"error": str(e)}
 
-if __name__ == "__main__":
-    proxies = {"http": TOR_PROXY, "https": TOR_PROXY}
-
-    report = {
-        "ip_check": check_ip(proxies),
-        "dns_check": dns_leak_test(),
-    }
-
+def main():
+    report = {"ip_check": check_ip(), "dns_check": dns_leak_test()}
     with open("tor_leak_report.json", "w") as f:
-        json.dump(report, f, indent=4)
+        json.dump(report, f, indent=2)
+    print("[+] Leak test complete -> tor_leak_report.json")
 
-    print("[+] Leak test complete. Results saved to tor_leak_report.json")
+if __name__ == "__main__":
+    main()
+EOF
