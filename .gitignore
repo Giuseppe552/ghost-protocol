@@ -17,11 +17,4 @@ ghost-tor-profile-*/
 .DS_Store
 *.log
 
-# --- demo/media hygiene ---
-*.mov
-*.mkv
-*.webm
-*.gif
-!docs/media/*.gif
-docs/media/tmp/
-tools/.tor.pid
+
