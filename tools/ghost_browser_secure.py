@@ -1,4 +1,4 @@
-import os, shutil, subprocess, tempfile, time, json, pathlib
+import os, shutil, subprocess, tempfile, time, json, pathlib, atexit
 
 def resolve_tor_path() -> str:
     p = os.environ.get("TOR_PATH")
@@ -21,7 +21,7 @@ def resolve_firefox_path() -> str:
     for cand in (r"C:\Program Files\Mozilla Firefox\firefox.exe",
                  r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"):
         if os.path.exists(cand): return cand
-    raise FileNotFoundError("Firefox not found. Install it or set FIREFOX_PATH.")
+    raise FileNotFoundError("Firefox not found in PATH. Install it or set FIREFOX_PATH.")
 
 def write_userjs(profile_dir: str):
     prefs = r'''
@@ -42,11 +42,21 @@ user_pref("dom.security.https_only_mode", true);
 def start_tor():
     tor = resolve_tor_path()
     print("[+] Starting Tor:", tor)
-    return subprocess.Popen([tor], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen([tor], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    def _kill():
+        try:
+            proc.terminate()
+            proc.wait(timeout=3)
+        except Exception:
+            try: proc.kill()
+            except Exception: pass
+    atexit.register(_kill)
+    return proc
 
 def launch_firefox(profile_dir: str):
     firefox = resolve_firefox_path()
-    args = [firefox, "-private-window", "-profile", profile_dir, "--no-remote", "https://check.torproject.org/"]
+    args = [firefox, "-private-window", "-profile", profile_dir, "--no-remote",
+            "https://check.torproject.org/"]
     env = os.environ.copy()
     env["MOZ_FORCE_DISABLE_E10S"] = "1"
     return subprocess.Popen(args, env=env)
@@ -54,7 +64,7 @@ def launch_firefox(profile_dir: str):
 def main():
     profile_dir = os.environ.get("PROFILE_DIR") or tempfile.mkdtemp(prefix="ghost-tor-profile-")
     write_userjs(profile_dir)
-    tor_proc = start_tor()
+    start_tor()
     print("[+] Waiting for Tor bootstrap (15s)...")
     time.sleep(15)
     launch_firefox(profile_dir)
