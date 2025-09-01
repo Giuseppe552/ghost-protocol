@@ -1,3 +1,8 @@
+<p align="center">
+  <video src="docs/demo/demo.mp4" width="960" controls autoplay muted loop></video>
+</p>
+
+
 ### ▶️ One-liner demo (Linux, Firefox)
 
 ```
