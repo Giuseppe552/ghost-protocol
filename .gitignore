@@ -18,7 +18,6 @@ ghost-tor-profile-*/
 *.log
 
 # --- demo/media hygiene ---
-*.mp4
 *.mov
 *.mkv
 *.webm
