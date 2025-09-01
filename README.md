@@ -69,13 +69,13 @@ ghost-protocol/
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Quickstart (linux)
 
 ```bash
 git clone https://github.com/Giuseppe552/ghost-protocol.git
-cd ghost-protocol/tools
+cd ghost-protocol
 pip install -r requirements.txt
-python ghost_protocol.py
+python3 ghost_protocol.py
 ```
 
 ---
