@@ -28,6 +28,11 @@ def make_temp_profile() -> Path:
     return d
 
 
+def create_profile_dir(firefox: str, profile_dir: Path) -> None:
+    # Initialize the profile folder so Firefox won’t show “Profile Missing”
+    subprocess.run([firefox, "-CreateProfile", f"ghostshield {profile_dir}"], check=True)
+
+
 def write_userjs(profile_dir: Path) -> None:
     prefs = """
 user_pref("network.proxy.type", 1);
@@ -65,17 +70,26 @@ def start_tor(pidfile: Path):
 
 def launch_firefox(profile_dir: Path):
     fx = resolve_firefox_path()
-    args = [fx, "-private-window", "-profile", str(profile_dir), "--no-remote", "https://check.torproject.org/"]
+    args = [
+        fx,
+        "-private-window",
+        "-profile",
+        str(profile_dir),
+        "--no-remote",
+        "https://check.torproject.org/",
+    ]
     return subprocess.Popen(args)
 
 
 def main():
+    fx = resolve_firefox_path()
     profile_dir = make_temp_profile()
+    create_profile_dir(fx, profile_dir)
     write_userjs(profile_dir)
     pidfile = Path(__file__).parent / ".tor.pid"
     print("[+] Hardened Firefox profile:", profile_dir)
     tor = start_tor(pidfile)
-    print("[+] Tor PID:", tor.pid, " — waiting 15s to bootstrap...")
+    print("[+] Tor PID:", tor.pid, "— waiting 15s to bootstrap...")
     time.sleep(15)
     launch_firefox(profile_dir)
     print(json.dumps({"profile_dir": str(profile_dir)}, indent=2))
