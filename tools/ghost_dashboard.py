@@ -1,4 +1,10 @@
-import json, threading, time, socket, subprocess, webbrowser, argparse
+import json
+import threading
+import time
+import socket
+import subprocess
+import webbrowser
+import argparse
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk

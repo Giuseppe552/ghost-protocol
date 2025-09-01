@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-import json, socket, subprocess, sys, os, shutil
+import json
+import socket
+import subprocess
+import sys
+import os
+import shutil
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
