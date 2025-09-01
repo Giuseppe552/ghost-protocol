@@ -4,6 +4,7 @@ from PIL import Image
 from PyPDF2 import PdfReader, PdfWriter
 import docx
 
+
 def clean_image(input_file, output_file):
     """Remove EXIF metadata from images."""
     img = Image.open(input_file)
@@ -12,6 +13,7 @@ def clean_image(input_file, output_file):
     img_no_exif.putdata(data)
     img_no_exif.save(output_file)
     print(f"[+] Cleaned image saved: {output_file}")
+
 
 def clean_pdf(input_file, output_file):
     """Remove metadata from PDFs."""
@@ -27,6 +29,7 @@ def clean_pdf(input_file, output_file):
 
     print(f"[+] Cleaned PDF saved: {output_file}")
 
+
 def clean_docx(input_file, output_file):
     """Remove metadata from Word documents."""
     doc = docx.Document(input_file)
@@ -37,6 +40,7 @@ def clean_docx(input_file, output_file):
     props.comments = ""
     doc.save(output_file)
     print(f"[+] Cleaned DOCX saved: {output_file}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Metadata Cleaner Tool")
@@ -61,6 +65,7 @@ def main():
         clean_docx(infile, outfile)
     else:
         print("[!] Unsupported file type. Use jpg, jpeg, png, pdf, or docx.")
+
 
 if __name__ == "__main__":
     main()

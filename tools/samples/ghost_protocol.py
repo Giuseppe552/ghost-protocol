@@ -7,12 +7,10 @@ from PyPDF2 import PdfReader, PdfWriter
 from docx import Document
 
 # Tor proxy settings
-PROXIES = {
-    'http': 'socks5h://127.0.0.1:9050',
-    'https': 'socks5h://127.0.0.1:9050'
-}
+PROXIES = {"http": "socks5h://127.0.0.1:9050", "https": "socks5h://127.0.0.1:9050"}
 
 LOG_FILE = "ghost_report.json"
+
 
 # ==============================
 # HTTPS-ONLY BROWSING
@@ -28,6 +26,7 @@ def tor_request(url):
     except Exception as e:
         return {"status": "error", "reason": str(e)}
 
+
 # ==============================
 # METADATA CLEANER
 # ==============================
@@ -42,6 +41,7 @@ def clean_image(infile, outfile):
     except Exception as e:
         return f"[!] Error cleaning image: {e}"
 
+
 def clean_pdf(infile, outfile):
     try:
         reader = PdfReader(infile)
@@ -54,6 +54,7 @@ def clean_pdf(infile, outfile):
     except Exception as e:
         return f"[!] Error cleaning PDF: {e}"
 
+
 def clean_docx(infile, outfile):
     try:
         doc = Document(infile)
@@ -64,6 +65,7 @@ def clean_docx(infile, outfile):
         return f"[+] Cleaned DOCX saved: {outfile}"
     except Exception as e:
         return f"[!] Error cleaning DOCX: {e}"
+
 
 # ==============================
 # REPORT LOGGER
@@ -83,6 +85,7 @@ def save_report(entry):
         print(f"[+] Report saved to {LOG_FILE}")
     except Exception as e:
         print(f"[!] Could not save report: {e}")
+
 
 # ==============================
 # MAIN MENU
@@ -116,6 +119,7 @@ def main():
     else:
         print("Exiting...")
 
+
 if __name__ == "__main__":
     while True:
         print("\n🕵️ Ghost Protocol: All-in-One Privacy Guard\n")
@@ -148,4 +152,3 @@ if __name__ == "__main__":
             break
         else:
             print("[!] Invalid choice. Try again.")
-

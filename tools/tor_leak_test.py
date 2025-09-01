@@ -1,6 +1,7 @@
 import json
 import socket
 import requests
+
 TOR = "socks5h://127.0.0.1:9050"
 PROX = {"http": TOR, "https": TOR}
 

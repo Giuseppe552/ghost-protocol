@@ -6,6 +6,8 @@ import time
 import json
 import pathlib
 import atexit
+
+
 def resolve_tor_path() -> str:
     p = os.environ.get("TOR_PATH")
     if p and os.path.exists(p):
