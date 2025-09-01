@@ -1,155 +1,171 @@
-
-
 # 🕵️ Ghost Protocol
 
-*A Research Framework for Digital Anonymity in 2025*
+*A research + demo lab for digital anonymity (Linux-first, 2025).*
 
 > “If you can’t explain it to a 5-year-old, you don’t understand it well enough.”
 
-Ghost Protocol is a **research + demo lab** for digital privacy.
-It combines plain-English explanations with deep technical dives and working Python tools to show:
+Ghost Protocol shows — with **plain-English notes** and **working Python tools** — how identity leaks happen on the web, and how to test/mitigate them:
+- HTTPS-only browsing and Tor routing
+- WebRTC/DNS/IP leak checks
+- Metadata stripping for JPG/PDF/DOCX
 
-* how people are tracked online,
-* how identity leaks happen, and
-* how someone could, in theory, build **full digital anonymity**.
-
-⚠️ **Disclaimer:** For **educational and research purposes only**.
-The goal is to teach engineers, researchers, and businesses **how anonymity is broken** so we can design **better privacy systems** — not to encourage illegal activity.
+> **Ethics & intent:** This project is for **education and research** so builders can design **safer systems**. Don’t use it to break the law or harm people.
 
 ---
 
-## 🌍 Why This Matters
-
-Every digital action leaves a **trail**. Governments, companies, and attackers use this trail to:
-
-* Build advertising profiles
-* Track political activity
-* Target individuals with cyber attacks
-* Leak sensitive business data
-
-🔑 **If you understand the leaks, you understand how to plug them.**
-
----
-
-## 📂 Project Structure
+## 📦 What’s inside
 
 ```
+
 ghost-protocol/
-│── docs/                     # Research notes (simple + deep dive)
-│   ├── 01_device.md          # Phones & device tracking
-│   ├── 02_google_apple.md    # Big Tech telemetry
-│   ├── 03_network.md         # ISP logging, VPNs, Tor
-│   ├── 04_messaging.md       # Secure messaging apps explained
-│   ├── 05_browsing.md        # Browser fingerprinting
-│   ├── 06_osint.md           # Doxxing & open-source intelligence
-│   └── 07_full_stack.md      # The "100% ghost" playbook
-│
-│── tools/                    # Demo scripts
-│   ├── ghost_protocol.py     # All-in-one CLI (HTTPS-only, Tor, metadata cleaner)
-│   ├── metadata_cleaner.py   # Strip hidden metadata (EXIF/DOC/PDF)
-│   ├── vpn_leak_test.py      # Detect DNS / IPv6 / WebRTC leaks
-│   ├── ghost_browser.bat     # Launch Firefox through Tor proxy
-│   └── ghost_browser_secure.py # Hardened Tor + HTTPS launcher
-│
-│── README.md
-│── requirements.txt
-```
+├─ docs/                  # Short explainers + deep dives
+├─ tools/
+│  ├─ ghost\_protocol.py   # Interactive AIO tool (menu)
+│  ├─ ghost\_browser\_secure.py  # Hardened Firefox + Tor (HTTPS-only, WebRTC off)
+│  ├─ tor\_leak\_test.py    # IP/DNS leak check via Tor
+│  ├─ metadata\_cleaner.py # Strip metadata from JPG/PDF/DOCX
+│  └─ vpn\_leak\_test.py    # Basic DNS/IPv6/WebRTC checks (optional)
+├─ ghost\_protocol.py      # Root launcher -> tools/ghost\_protocol.py
+├─ requirements.txt
+├─ Makefile               # Quality-of-life targets (optional)
+└─ .github/workflows/     # CI (lint + import check)
+
+````
 
 ---
 
-## 🛠️ Tools Overview
+## ⚙️ Requirements (Linux)
 
-| Tool                          | Purpose                                                                                 | Example Use                                                |
-| ----------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **ghost\_protocol.py**        | All-in-one CLI for privacy testing: HTTPS-only browsing, metadata cleaner, Tor requests | `python ghost_protocol.py`                                 |
-| **metadata\_cleaner.py**      | Removes hidden metadata from JPG, PDF, DOCX                                             | `python metadata_cleaner.py samples/demo.jpg -o clean.jpg` |
-| **vpn\_leak\_test.py**        | Detects DNS leaks, IPv6 leaks, WebRTC leaks, and location mismatches                    | `python vpn_leak_test.py`                                  |
-| **ghost\_browser.bat**        | Launches Firefox routed through Tor SOCKS5 proxy                                        | Double-click                                               |
-| **ghost\_browser\_secure.py** | Hardened browser launcher: enforces HTTPS-only, disables WebRTC                         | `python ghost_browser_secure.py`                           |
+- Python **3.10+**
+- Tor (`sudo apt install -y tor`)
+- Firefox (preinstalled on most distros)
+
+> The Python dependencies are installed from `requirements.txt`.  
+> `geckodriver` is **not** required for the current tooling.
 
 ---
 
-## 🚀 Quickstart (linux)
+## 🚀 Quickstart
 
+**Option A — one-liners**
 ```bash
 git clone https://github.com/Giuseppe552/ghost-protocol.git
 cd ghost-protocol
 pip install -r requirements.txt
 python3 ghost_protocol.py
+````
+
+**Option B — with Makefile**
+
+```bash
+git clone https://github.com/Giuseppe552/ghost-protocol.git
+cd ghost-protocol
+make setup
+make run
 ```
 
 ---
 
-## 📖 Example Lesson: Metadata in Photos
+## 🧪 Usage
 
-* **Simple:**
-  “A photo is like a diary — it secretly writes down your location, time, and device every time you snap it.”
+### 1) Interactive AIO tool
 
-* **Technical:**
-  Photos embed **EXIF metadata** (GPS coordinates, camera serial, device IDs).
-  Attackers extract this with tools like `exiftool`.
+```bash
+python3 ghost_protocol.py
+```
 
-✅ Solution: Run `metadata_cleaner.py` → exports a safe photo with no hidden info.
+You’ll get a small menu to:
 
----
+* make HTTPS requests via Tor,
+* clean file metadata (JPG/PDF/DOCX).
 
-## 🔮 Roadmap
+### 2) Hardened browser via Tor (HTTPS-only, WebRTC disabled)
 
-* [x] Device tracking explained
-* [x] Metadata leaks explained + demo tool
-* [x] VPN leak tester implemented
-* [x] Tor routing demo working
-* [x] Secure messaging analysis (Signal, Session, Matrix)
-* [x] Full-stack “Ghost Playbook”
-* [ ] **NEW:** Add automated “Ghost Dashboard” (single view of leaks + fixes)
+```bash
+python3 tools/ghost_browser_secure.py
+```
 
----
+What to expect:
 
-## ❓ FAQ — Digital Anonymity & Secure Messaging
+* Firefox opens on `check.torproject.org` with a new hardened profile
+* **HTTP** sites show “HTTPS-Only Mode” blocked page (by design)
+* WebRTC leak tests show **No Leak**
 
-### 🔐 Is Signal really anonymous?
+### 3) Tor leak check (headless)
 
-No. Signal is **private** (end-to-end encrypted), but not **anonymous**.
-Registration requires a **phone number**, which creates a metadata trail (who, when, with what SIM).
+```bash
+python3 tools/tor_leak_test.py
+cat tor_leak_report.json
+```
 
-**Takeaway:** Signal protects **confidentiality**, not full anonymity.
+Example output:
 
----
+```json
+{
+  "ip_check": {"IsTor": true, "IP": "45.84.107.33"},
+  "dns_check": {"dns_local": "23.192.228.80", "dns_via_tor": "23.215.0.138"}
+}
+```
 
-### 🛰️ How do governments track metadata?
+### 4) Metadata cleaner
 
-Metadata leaks reveal:
+```bash
+# JPG/PNG
+python3 tools/metadata_cleaner.py --in samples/cleaned_demo.jpg --out out.jpg
 
-* **Who talks to who** (connection graphs)
-* **When and how often** (timing analysis)
-* **Where** (IP addresses, tower triangulation)
+# PDF
+python3 tools/metadata_cleaner.py --in samples/cleaned_demo.pdf --out out.pdf
 
-Agencies often infer networks and hierarchies just from **patterns of communication**.
-
-**Takeaway:** Metadata can betray you even if content stays encrypted.
-
----
-
-### 🧩 Encryption vs. Anonymity
-
-* **Encryption** = hides **what you say**.
-* **Anonymity** = hides **who is speaking**.
-
-Examples:
-
-* Signal = encrypted, not anonymous.
-* Tor (without HTTPS) = anonymous, not encrypted.
-
-**Takeaway:** True privacy = **both encryption + anonymity**.
+# DOCX
+python3 tools/metadata_cleaner.py --in samples/cleaned_demo.docx --out out.docx
+```
 
 ---
 
-## ✨ Positive Note
+## 🧠 What you’ll learn (short versions)
 
-Anonymity isn’t about fear — it’s about **freedom**.
-Learning how systems work makes you **stronger, calmer, and harder to break**.
+* **Encryption vs. anonymity:** encryption hides *content*, anonymity hides *who*. You need both.
+* **Signal is private, not anonymous:** E2EE but phone-number metadata ties identity.
+* **Metadata wins:** timing/IP/graph info often deanonymizes even if messages are encrypted.
 
 ---
+
+## 🧹 Dev quality
+
+* CI: flake8 + import/compile check (Linux)
+* Code style: Black + flake8 (configured)
+* `.gitignore` blocks build artifacts and local reports
+
+Run locally:
+
+```bash
+make fmt      # black .
+make lint     # flake8 + py_compile
+```
+
+---
+
+## 🗺️ Roadmap
+
+* [x] Linux-first Tor browser hardening
+* [x] WebRTC/DNS leak tests
+* [x] Metadata cleaner (JPG/PDF/DOCX)
+* [ ] CLI subcommands (non-interactive `browser | leak | clean`)
+* [ ] **Ghost Dashboard**: one-page summary of leaks & mitigations
+* [ ] Packaging for `pipx` + .deb install script
+
+---
+
+## 📝 License
+
+MIT — see `LICENSE`.
+
+---
+
+## 🤝 Contributing
+
+Issues and PRs welcome. Keep PRs small and Linux-first. Run `make fmt && make lint` before pushing.
+
 
 
 
