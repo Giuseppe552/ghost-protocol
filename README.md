@@ -229,3 +229,10 @@ Issues and PRs welcome. Keep PRs small and Linux-first. Run `make fmt && make li
 
 
 
+### ▶️ One-liner demo (Linux, Firefox)
+
+```bash
+bash -c 'set -e; cd ~; REPO=ghost-protocol; [ -d "$REPO" ] || git clone https://github.com/Giuseppe552/ghost-protocol.git "$REPO"; cd "$REPO"; git pull --rebase || true; python3 -m pip install --user -r requirements.txt >/dev/null 2>&1 || true; python3 -c "import tkinter" 2>/dev/null || (sudo apt-get update -y && sudo apt-get install -y python3-tk); mkdir -p ~/.mozilla/firefox/ghostshield; grep -q "network.trr.mode" ~/.mozilla/firefox/ghostshield/user.js 2>/dev/null || printf "
+user_pref(\"network.trr.mode\", 5);\n" >> ~/.mozilla/firefox/ghostshield/user.js; GP_ASSUME_YES=1 python3 tools/ghost_browser_secure.py >/dev/null 2>&1 & sleep 2; python3 tools/ghost_sidecar.py'
+```
+
