@@ -2,7 +2,7 @@
   <a href="docs/demo/demo-small.mp4">▶ Watch 20-second demo (MP4)</a>
 </p>
 <p align="center">
-  <img src="docs/media/demo.gif" alt="20-second demo" width="100%">
+  <img src="docs/demo/demo.gif" alt="20-second demo" width="100%">
 </p>
 
 > **What you’ll see (20s):** paste the one-liner from the README, a hardened Tor-Firefox launches, the Ghost Shield sidecar opens, and we visit Tor Check + an HTTP-only test. The sidecar shows Tor OK, exit is a Tor IP, HTTPS blocks HTTP, and DNS differs (no local leak).
