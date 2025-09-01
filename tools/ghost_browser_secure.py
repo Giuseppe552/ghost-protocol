@@ -1,4 +1,10 @@
-import atexit, json, os, shutil, subprocess, tempfile, time
+import atexit
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import time
 
 
 def resolve_tor_path() -> str:
