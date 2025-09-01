@@ -1,41 +1,41 @@
-import subprocess
-import time
-import webbrowser
-import os
+cat > tools/ghost_browser_secure.py << 'EOF'
+import os, shutil, subprocess, tempfile, time, sys, json, pathlib
 
-# Paths (adjust if needed)
-TOR_PATH = r"C:\tor\tor.exe"
-FIREFOX_PATH = r"C:\Program Files\Mozilla Firefox\firefox.exe"
+def resolve_tor_path() -> str:
+    p = os.environ.get("TOR_PATH")
+    if p and os.path.exists(p):
+        return p
+    p = shutil.which("tor")
+    if p:
+        return p
+    for cand in (
+        r"C:\tor\tor.exe",
+        r"C:\Program Files\Tor\tor.exe",
+        r"C:\Program Files (x86)\Tor\tor.exe",
+        r"C:\Users\%USERNAME%\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe",
+    ):
+        cand = os.path.expandvars(cand)
+        if os.path.exists(cand):
+            return cand
+    raise FileNotFoundError("Tor not found. Install tor or set TOR_PATH=/full/path/to/tor(.exe)")
 
-# Firefox Profile (hardened for Tor)
-PROFILE_PATH = r"C:\Users\giuse\AppData\Roaming\Mozilla\Firefox\Profiles\tor-secure"
+def resolve_firefox_path() -> str:
+    p = os.environ.get("FIREFOX_PATH")
+    if p and os.path.exists(p):
+        return p
+    p = shutil.which("firefox")
+    if p:
+        return p
+    for cand in (
+        r"C:\Program Files\Mozilla Firefox\firefox.exe",
+        r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe",
+    ):
+        if os.path.exists(cand):
+            return cand
+    raise FileNotFoundError("Firefox not found in PATH. Install it or set FIREFOX_PATH.")
 
-# Ensure profile exists
-os.makedirs(PROFILE_PATH, exist_ok=True)
-
-def start_tor():
-    print("[+] Starting Tor...")
-    return subprocess.Popen([TOR_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-def launch_firefox():
-    print("[+] Launching Firefox with Tor settings...")
-
-    firefox_args = [
-        FIREFOX_PATH,
-        "-private-window",
-        "-profile", PROFILE_PATH,
-        "--no-remote",
-        "https://check.torproject.org/"
-    ]
-
-    env = os.environ.copy()
-    env["MOZ_FORCE_DISABLE_E10S"] = "1"
-
-    return subprocess.Popen(firefox_args, env=env)
-
-def write_userjs():
-    """Write hardened settings into user.js inside profile folder"""
-    prefs = f"""
+def write_userjs(profile_dir: str):
+    prefs = r'''
 user_pref("network.proxy.type", 1);
 user_pref("network.proxy.socks", "127.0.0.1");
 user_pref("network.proxy.socks_port", 9050);
@@ -44,21 +44,35 @@ user_pref("network.proxy.no_proxies_on", "");
 user_pref("dom.webrtc.enabled", false);
 user_pref("privacy.resistFingerprinting", true);
 user_pref("browser.contentblocking.category", "strict");
-user_pref("network.http.referer.XOriginPolicy", 2);
 user_pref("dom.security.https_only_mode", true);
-    """
-    with open(os.path.join(PROFILE_PATH, "user.js"), "w") as f:
-        f.write(prefs)
-    print("[+] Hardened Firefox profile written.")
+'''
+    pathlib.Path(profile_dir).mkdir(parents=True, exist_ok=True)
+    (pathlib.Path(profile_dir) / "user.js").write_text(prefs, encoding="utf-8")
+    print("[+] Hardened Firefox profile written:", profile_dir)
+
+def start_tor():
+    tor = resolve_tor_path()
+    print("[+] Starting Tor:", tor)
+    return subprocess.Popen([tor], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+def launch_firefox(profile_dir: str):
+    firefox = resolve_firefox_path()
+    args = [firefox, "-private-window", "-profile", profile_dir, "--no-remote", "https://check.torproject.org/"]
+    env = os.environ.copy()
+    env["MOZ_FORCE_DISABLE_E10S"] = "1"
+    return subprocess.Popen(args, env=env)
 
 def main():
-    write_userjs()
+    profile_dir = os.environ.get("PROFILE_DIR") or tempfile.mkdtemp(prefix="ghost-tor-profile-")
+    write_userjs(profile_dir)
     tor_proc = start_tor()
-    print("[+] Waiting for Tor circuits to bootstrap (15s)...")
+    print("[+] Waiting for Tor bootstrap (15s)...")
     time.sleep(15)
-
-    launch_firefox()
-    print("[+] Done. Check browser window for Tor status.")
+    launch_firefox(profile_dir)
+    meta = {"profile_dir": profile_dir}
+    print(json.dumps(meta, indent=2))
+    print("[+] Done. Close Firefox then kill Tor if needed.")
 
 if __name__ == "__main__":
     main()
+EOF
