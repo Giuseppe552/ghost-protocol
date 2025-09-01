@@ -1,76 +1,59 @@
 #!/usr/bin/env python3
-import json
-import os
-import pathlib
-import signal
-import subprocess
-import sys
-import time
+import json, sys, subprocess, socket, pathlib
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-TOOLS = ROOT / "tools"
-TOR_LEAK = TOOLS / "tor_leak_test.py"
-PIDFILE = TOOLS / ".tor.pid"
+ROOT   = pathlib.Path(__file__).resolve().parents[1]
+TOOLS  = ROOT / "tools"
+SCRIPT = TOOLS / "tor_leak_test.py"
+REPORT = ROOT / "tor_leak_report.json"
 
-
-def _read_msg():
-    raw_len = sys.stdin.buffer.read(4)
-    if not raw_len:
-        sys.exit(0)
-    msg_len = int.from_bytes(raw_len, "little")
-    data = sys.stdin.buffer.read(msg_len)
+def _read():
+    raw = sys.stdin.buffer.read(4)
+    if not raw: sys.exit(0)
+    n = int.from_bytes(raw, "little")
+    data = sys.stdin.buffer.read(n)
     return json.loads(data.decode("utf-8"))
 
+def _send(obj):
+    b = json.dumps(obj).encode("utf-8")
+    sys.stdout.buffer.write(len(b).to_bytes(4, "little"))
+    sys.stdout.buffer.write(b); sys.stdout.flush()
 
-def _send_msg(obj):
-    enc = json.dumps(obj).encode("utf-8")
-    sys.stdout.buffer.write(len(enc).to_bytes(4, "little"))
-    sys.stdout.buffer.write(enc)
-    sys.stdout.flush()
-
-
-def _tor_running():
+def tor_running() -> bool:
+    s = socket.socket(); s.settimeout(0.5)
     try:
-        pid = int(pathlib.Path(PIDFILE).read_text().strip())
-        os.kill(pid, 0)
-        return True, pid
+        s.connect(("127.0.0.1", 9050)); return True
     except Exception:
-        return False, None
+        return False
+    finally:
+        s.close()
 
-
-def _status():
+def run_leak_test():
     try:
-        subprocess.run([sys.executable, str(TOR_LEAK)], capture_output=True, text=True, timeout=20)
-        report_path = ROOT / "tor_leak_report.json"
-        report = json.loads(report_path.read_text()) if report_path.exists() else {}
+        subprocess.run([sys.executable, str(SCRIPT)], check=True, timeout=15)
+        if REPORT.exists():
+            return json.loads(REPORT.read_text())
+        return {"error": "no report produced"}
     except Exception as e:
-        report = {"error": f"tor_leak_test failed: {e}"}
-    ok, pid = _tor_running()
-    return {"tor_process": {"running": ok, "pid": pid}, "report": report, "host": "native-python"}
-
+        return {"error": str(e)}
 
 def main():
     while True:
         try:
-            req = _read_msg()
+            req = _read()
         except SystemExit:
-            break
-        cmd = req.get("cmd")
-        if cmd == "status":
-            _send_msg(_status())
-        elif cmd == "kill_tor":
-            ok, pid = _tor_running()
-            if ok:
-                try:
-                    os.kill(pid, signal.SIGTERM)
-                    time.sleep(0.4)
-                except Exception as e:
-                    _send_msg({"ok": False, "error": str(e)})
-                    continue
-            _send_msg({"ok": True})
-        else:
-            _send_msg({"error": f"unknown cmd: {cmd}"})
+            return
+        except Exception as e:
+            _send({"ok": False, "error": f"read:{e}"}); continue
 
+        if req.get("cmd", "status") == "status":
+            _send({
+                "ok": True,
+                "host": "com.ghostprotocol.host",
+                "tor_process": {"running": tor_running()},
+                "report": run_leak_test()
+            })
+        else:
+            _send({"ok": False, "error": "unknown cmd"})
 
 if __name__ == "__main__":
     main()

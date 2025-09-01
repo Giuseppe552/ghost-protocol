@@ -1,4 +1,5 @@
-function cls(ok){return ok?"ok":"bad";}
+function cls(ok){ return ok ? "ok" : "bad"; }
+
 async function refresh(){
   const res = await browser.runtime.sendMessage("status");
   const t=document.getElementById("tor"),
@@ -27,8 +28,8 @@ async function refresh(){
   if(dlocal && dtor){
     dns.textContent = (dlocal===dtor) ? "⚠️ same resolver" : "✅ different via Tor";
     dns.className = (dlocal===dtor) ? "bad" : "ok";
-  }else{ dns.textContent="—"; dns.className="muted"; }
+  } else { dns.textContent="—"; dns.className="muted"; }
 }
-document.getElementById("refresh").onclick=refresh;
-document.getElementById("kill").onclick=async()=>{ await browser.runtime.sendMessage("kill_tor"); refresh(); };
-refresh();
+
+document.addEventListener("DOMContentLoaded", refresh);
+document.getElementById("refresh").addEventListener("click", refresh);

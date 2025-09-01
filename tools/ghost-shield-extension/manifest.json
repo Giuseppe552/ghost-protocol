@@ -1,10 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Ghost Shield",
-  "version": "0.1.0",
-  "description": "Live privacy status for Ghost Protocol (Tor, HTTPS-Only, WebRTC).",
+  "version": "0.1.1",
+  "description": "Local privacy checks. No data leaves your machine.",
   "browser_action": { "default_title": "Ghost Shield", "default_popup": "popup.html" },
   "background": { "scripts": ["background.js"] },
-  "permissions": ["nativeMessaging", "storage", "webRequest", "<all_urls>"],
-  "applications": { "gecko": { "id": "ghost-shield@ghost-protocol" } }
+  "permissions": [
+    "nativeMessaging",
+    "http://http.badssl.com/*"     // only for the HTTPS-Only probe
+  ],
+  "browser_specific_settings": { "gecko": { "id": "ghost-shield@ghost-protocol" } }
 }
