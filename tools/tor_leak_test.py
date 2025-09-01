@@ -1,6 +1,4 @@
-cat > tools/tor_leak_test.py << 'EOF'
 import json, socket, requests
-
 TOR = "socks5h://127.0.0.1:9050"
 PROX = {"http": TOR, "https": TOR}
 
@@ -28,4 +26,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-EOF

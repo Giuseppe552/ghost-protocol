@@ -1,38 +1,27 @@
-cat > tools/ghost_browser_secure.py << 'EOF'
-import os, shutil, subprocess, tempfile, time, sys, json, pathlib
+import os, shutil, subprocess, tempfile, time, json, pathlib
 
 def resolve_tor_path() -> str:
     p = os.environ.get("TOR_PATH")
-    if p and os.path.exists(p):
-        return p
+    if p and os.path.exists(p): return p
     p = shutil.which("tor")
-    if p:
-        return p
-    for cand in (
-        r"C:\tor\tor.exe",
-        r"C:\Program Files\Tor\tor.exe",
-        r"C:\Program Files (x86)\Tor\tor.exe",
-        r"C:\Users\%USERNAME%\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe",
-    ):
+    if p: return p
+    for cand in (r"C:\tor\tor.exe",
+                 r"C:\Program Files\Tor\tor.exe",
+                 r"C:\Program Files (x86)\Tor\tor.exe",
+                 r"C:\Users\%USERNAME%\Desktop\Tor Browser\Browser\TorBrowser\Tor\tor.exe"):
         cand = os.path.expandvars(cand)
-        if os.path.exists(cand):
-            return cand
+        if os.path.exists(cand): return cand
     raise FileNotFoundError("Tor not found. Install tor or set TOR_PATH=/full/path/to/tor(.exe)")
 
 def resolve_firefox_path() -> str:
     p = os.environ.get("FIREFOX_PATH")
-    if p and os.path.exists(p):
-        return p
+    if p and os.path.exists(p): return p
     p = shutil.which("firefox")
-    if p:
-        return p
-    for cand in (
-        r"C:\Program Files\Mozilla Firefox\firefox.exe",
-        r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe",
-    ):
-        if os.path.exists(cand):
-            return cand
-    raise FileNotFoundError("Firefox not found in PATH. Install it or set FIREFOX_PATH.")
+    if p: return p
+    for cand in (r"C:\Program Files\Mozilla Firefox\firefox.exe",
+                 r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"):
+        if os.path.exists(cand): return cand
+    raise FileNotFoundError("Firefox not found. Install it or set FIREFOX_PATH.")
 
 def write_userjs(profile_dir: str):
     prefs = r'''
@@ -69,10 +58,8 @@ def main():
     print("[+] Waiting for Tor bootstrap (15s)...")
     time.sleep(15)
     launch_firefox(profile_dir)
-    meta = {"profile_dir": profile_dir}
-    print(json.dumps(meta, indent=2))
+    print(json.dumps({"profile_dir": profile_dir}, indent=2))
     print("[+] Done. Close Firefox then kill Tor if needed.")
 
 if __name__ == "__main__":
     main()
-EOF
